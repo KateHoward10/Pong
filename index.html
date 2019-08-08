@@ -15,6 +15,10 @@
 			const ball = document.getElementById('ball');
 			const player2 = document.getElementById('player2');
 
+			function movePlayer1() {
+				const player1Y = +player1.getAttribute('y');
+				player1.setAttribute('y', Math.random() > 0.5 ? player1Y + 20 : player1Y - 20);
+			}
 			function movePlayer2(event) {
 				if (event.keyCode === 38) {
 					player2.setAttribute('y', +player2.getAttribute('y') - 20);
@@ -22,11 +26,12 @@
 					player2.setAttribute('y', +player2.getAttribute('y') + 20);
 				} else if (event.keyCode === 32) {
 					ballMove();
+					setInterval(movePlayer1, Math.random() * 2000);
 				}
 			}
 
 			let direction = 'right';
-			let yOffset = (Math.random() * 10) - 5;
+			let yOffset = Math.random() * 10 - 5;
 
 			function resetGame() {
 				ball.setAttribute('x', 395);
@@ -54,9 +59,9 @@
 
 				ball.setAttribute('y', currentY + yOffset);
 				if (direction === 'left') {
-					ball.setAttribute('x', currentX - 2);
+					ball.setAttribute('x', currentX - 1);
 				} else {
-					ball.setAttribute('x', currentX + 2);
+					ball.setAttribute('x', currentX + 1);
 				}
 				requestAnimationFrame(ballMove);
 			}
