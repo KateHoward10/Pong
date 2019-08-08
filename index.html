@@ -24,22 +24,32 @@
 			}
 
 			let direction = 'right';
+			let yOffset = (Math.random() * 10) - 5;
 
 			function ballMove() {
-				if (+ball.getAttribute('x') + +ball.getAttribute('width') >= +player2.getAttribute('x')) {
+				const currentX = +ball.getAttribute('x');
+				const currentY = +ball.getAttribute('y');
+				if (currentX + 10 >= +player2.getAttribute('x')) {
 					direction = 'left';
 				}
-				if (+ball.getAttribute('x') <= +player1.getAttribute('x') + +player1.getAttribute('width')) {
+				if (currentX <= +player1.getAttribute('x') + 10) {
 					direction = 'right';
 				}
-				if (direction === 'left') {
-					ball.setAttribute('x', +ball.getAttribute('x') - 10);
-				} else {
-					ball.setAttribute('x', +ball.getAttribute('x') + 10);
+
+				if (currentY <= 10 || currentY >= 590) {
+					yOffset = -1 * yOffset;
 				}
+
+				ball.setAttribute('y', currentY + yOffset);
+				if (direction === 'left') {
+					ball.setAttribute('x', currentX - 2);
+				} else {
+					ball.setAttribute('x', currentX + 2);
+				}
+				requestAnimationFrame(ballMove);
 			}
 
-			setInterval(ballMove, 100);
+			ballMove();
 
 			document.addEventListener('keydown', movePlayer2);
 		</script>
