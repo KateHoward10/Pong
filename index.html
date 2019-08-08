@@ -9,11 +9,33 @@
 			<rect id="ball" width="10" height="10" x="395" y="295" />
 			<rect id="player2" width="10" height="50" x="770" y="275" />
 		</svg>
+		<div>
+			<p>My score: <span id="myScore">0</span></p>
+			<p>Computer’s score: <span id="computerScore">0</span></p>
+		</div>
 		<script type="text/javascript">
 			const game = document.getElementById('game');
 			const player1 = document.getElementById('player1');
 			const ball = document.getElementById('ball');
 			const player2 = document.getElementById('player2');
+			const myScoreBox = document.getElementById('myScore');
+			const computerScoreBox = document.getElementById('computerScore');
+
+			let myScore = 0;
+			let computerScore = 0;
+
+			setMyScore(0);
+			setComputerScore(0);
+
+			function setMyScore(score) {
+				myScore = score;
+				myScoreBox.textContent = myScore;
+			}
+
+			function setComputerScore(score) {
+				computerScore = score
+				computerScoreBox.textContent = computerScore;
+			}
 
 			function movePlayer1() {
 				const player1Y = +player1.getAttribute('y');
@@ -33,7 +55,7 @@
 			let direction = 'right';
 			let yOffset = Math.random() * 10 - 5;
 
-			function resetGame() {
+			function resetBall() {
 				ball.setAttribute('x', 395);
 				ball.setAttribute('y', 295);
 			}
@@ -45,9 +67,11 @@
 				const player2Y = +player2.getAttribute('y');
 				if (currentX + 10 >= player2X && player2Y <= currentY && currentY <= player2Y + 50) {
 					direction = 'left';
+					setMyScore(myScore + 1);
 				}
 				if (currentX + 10 >= 800) {
-					setTimeout(resetGame, 100);
+					setComputerScore(computerScore + 1);
+					setTimeout(resetBall, 100);
 				}
 				if (currentX <= +player1.getAttribute('x') + 10) {
 					direction = 'right';
