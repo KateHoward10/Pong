@@ -1,0 +1,14 @@
+body {
+	display: flex;
+	flex-direction: row;
+}
+
+svg {
+	border: 2px solid black;
+	cursor: none;
+}
+
+p {
+	padding: 10px;
+	font-size: 20;
+}

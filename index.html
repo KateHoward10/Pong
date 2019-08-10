@@ -2,17 +2,15 @@
 <html>
 	<head>
 		<title>Pong!</title>
+		<link rel="stylesheet" href="style.css"></link>
 	</head>
 	<body>
-		<svg id="game" width="800" height="600">
+		<svg id="game" width="800" height="600" >
 			<rect id="player1" width="10" height="50" x="20" y="275" />
 			<rect id="ball" width="10" height="10" x="395" y="295" />
 			<rect id="player2" width="10" height="50" x="770" y="275" />
 		</svg>
-		<div>
-			<p>My score: <span id="myScore">0</span></p>
-			<p>Computer’s score: <span id="computerScore">0</span></p>
-		</div>
+		<p><span id="computerScore">0</span> : <span id="myScore">0</span></p>
 		<script type="text/javascript">
 			const game = document.getElementById('game');
 			const player1 = document.getElementById('player1');
@@ -33,7 +31,7 @@
 			}
 
 			function setComputerScore(score) {
-				computerScore = score
+				computerScore = score;
 				computerScoreBox.textContent = computerScore;
 			}
 
@@ -41,14 +39,21 @@
 				const player1Y = +player1.getAttribute('y');
 				player1.setAttribute('y', Math.random() > 0.5 ? player1Y + 20 : player1Y - 20);
 			}
-			function movePlayer2(event) {
+
+			function keyPress(event) {
 				if (event.keyCode === 38) {
 					player2.setAttribute('y', +player2.getAttribute('y') - 20);
 				} else if (event.keyCode === 40) {
 					player2.setAttribute('y', +player2.getAttribute('y') + 20);
 				} else if (event.keyCode === 32) {
 					ballMove();
-					setInterval(movePlayer1, Math.random() * 2000);
+					setInterval(movePlayer1, Math.random() * 2000 +1000);
+				}
+			}
+
+			function moveMouse(event) {
+				if (event.clientY < 550) {
+					player2.setAttribute('y', event.clientY);
 				}
 			}
 
@@ -90,7 +95,8 @@
 				requestAnimationFrame(ballMove);
 			}
 
-			document.addEventListener('keydown', movePlayer2);
+			document.addEventListener('keydown', keyPress);
+			document.addEventListener('mousemove', moveMouse);
 		</script>
 	</body>
 </html>
