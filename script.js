@@ -47,7 +47,13 @@ function setComputerScore(score) {
 
 function movePlayer1() {
 	const player1Y = +player1.getAttribute('y');
-	player1.setAttribute('y', Math.random() > 0.5 ? player1Y + BALL_DIAMETER : player1Y - BALL_DIAMETER);
+	if (player1Y <= PLAYER_HEIGHT) {
+		player1.setAttribute('y', player1Y + BALL_DIAMETER);
+	} else if (player1Y >= GAME_HEIGHT - PLAYER_HEIGHT) {
+		player1.setAttribute('y', player1Y - BALL_DIAMETER);
+	} else {
+		player1.setAttribute('y', Math.random() > 0.5 ? player1Y + BALL_DIAMETER : player1Y - BALL_DIAMETER);
+	}
 }
 
 function keyPress(event) {
@@ -57,7 +63,7 @@ function keyPress(event) {
 		player2.setAttribute('y', +player2.getAttribute('y') + BALL_DIAMETER);
 	} else if (event.keyCode === 32) {
 		ballMove();
-		setInterval(movePlayer1, Math.random() * 2000 + 1000);
+		setInterval(movePlayer1, 1000);
 	}
 }
 
@@ -67,7 +73,7 @@ function moveMouse(event) {
 	}
 }
 
-let direction = 'right';
+let direction = Math.random() > 0.5 ? 'right' : 'left';
 let yOffset = Math.random() * 10 - 5;
 
 function resetBall() {
@@ -78,21 +84,36 @@ function resetBall() {
 function ballMove() {
 	const currentX = +ball.getAttribute('x');
 	const currentY = +ball.getAttribute('y');
+	const player1X = +player1.getAttribute('x');
+	const player1Y = +player1.getAttribute('y');
 	const player2X = +player2.getAttribute('x');
 	const player2Y = +player2.getAttribute('y');
-	if (currentX + BALL_DIAMETER >= player2X && player2Y <= currentY && currentY <= player2Y + PLAYER_HEIGHT) {
+	if (
+		currentX + BALL_DIAMETER === player2X &&
+		player2Y <= currentY + BALL_DIAMETER &&
+		currentY <= player2Y + PLAYER_HEIGHT
+	) {
 		direction = 'left';
 		setMyScore(myScore + 1);
 	}
-	if (currentX + BALL_DIAMETER >= GAME_WIDTH) {
-		setComputerScore(computerScore + 2);
+	if (currentX + BALL_DIAMETER === GAME_WIDTH) {
+		setComputerScore(computerScore + 1);
 		setTimeout(resetBall, 100);
 	}
-	if (currentX <= +player1.getAttribute('x') + BALL_DIAMETER) {
+	if (
+		currentX === player1X + BALL_DIAMETER &&
+		player1Y <= currentY + BALL_DIAMETER &&
+		currentY <= player1Y + PLAYER_HEIGHT
+	) {
+		setComputerScore(computerScore + 1);
 		direction = 'right';
 	}
+	if (currentX === 0) {
+		setMyScore(myScore + 1);
+		setTimeout(resetBall, 100);
+	}
 
-	if (currentY <= BALL_DIAMETER || currentY >= GAME_HEIGHT - BALL_DIAMETER) {
+	if (currentY <= 0 || currentY >= GAME_HEIGHT - BALL_DIAMETER) {
 		yOffset = -1 * yOffset;
 	}
 
