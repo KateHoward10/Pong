@@ -52,7 +52,7 @@ function movePlayer1() {
 	} else if (player1Y >= GAME_HEIGHT - PLAYER_HEIGHT) {
 		player1.setAttribute('y', player1Y - BALL_DIAMETER);
 	} else {
-		player1.setAttribute('y', Math.random() > 0.5 ? player1Y + BALL_DIAMETER : player1Y - BALL_DIAMETER);
+		player1.setAttribute('y', yOffset > 0 ? player1Y + BALL_DIAMETER : player1Y - BALL_DIAMETER);
 	}
 }
 
@@ -63,7 +63,7 @@ function keyPress(event) {
 		player2.setAttribute('y', +player2.getAttribute('y') + BALL_DIAMETER);
 	} else if (event.keyCode === 32) {
 		ballMove();
-		setInterval(movePlayer1, 1000);
+		setInterval(movePlayer1, 200);
 	}
 }
 
