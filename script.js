@@ -113,7 +113,18 @@ function ballMove() {
 		setTimeout(resetBall, 100);
 	}
 
-	if (currentY <= 0 || currentY >= GAME_HEIGHT - BALL_DIAMETER) {
+	if (
+		currentY <= 0 ||
+		currentY >= GAME_HEIGHT - BALL_DIAMETER ||
+		(player1X - BALL_DIAMETER < currentX + BALL_DIAMETER &&
+			currentX < player1X + BALL_DIAMETER &&
+			((currentY + BALL_DIAMETER >= player1Y && currentY < player1Y + BALL_DIAMETER) ||
+				(currentY <= player1Y + PLAYER_HEIGHT && currentY > player1Y))) ||
+		(player2X - BALL_DIAMETER < currentX + BALL_DIAMETER &&
+			currentX < player2X + BALL_DIAMETER &&
+			((currentY + BALL_DIAMETER >= player2Y && currentY < player2Y + BALL_DIAMETER) ||
+				(currentY <= player2Y + PLAYER_HEIGHT && currentY > player2Y)))
+	) {
 		yOffset = -1 * yOffset;
 	}
 
