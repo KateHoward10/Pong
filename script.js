@@ -1,30 +1,121 @@
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 600;
 const BALL_DIAMETER = 20;
 const BALL_RADIUS = BALL_DIAMETER / 2;
+const PLAYER_WIDTH = 20;
 const PLAYER_HEIGHT = 100;
 
-const game = document.getElementById('game');
-game.setAttribute('width', GAME_WIDTH);
-game.setAttribute('height', GAME_HEIGHT);
+class Vec {
+  constructor(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
+  }
+}
 
-const player1 = document.getElementById('player1');
-player1.setAttribute('width', BALL_DIAMETER);
-player1.setAttribute('height', PLAYER_HEIGHT);
-player1.setAttribute('x', BALL_DIAMETER * 2);
-player1.setAttribute('y', GAME_HEIGHT / 2 - PLAYER_HEIGHT / 2);
+class Rect {
+  constructor(width, height) {
+    this.pos = new Vec;
+    this.size = new Vec(width, height);
+  }
+  get left() {
+    return this.pos.x - BALL_RADIUS;
+  }
+  get right() {
+    return this.pos.x + BALL_RADIUS;
+  }
+  get top() {
+    return this.pos.y - BALL_RADIUS;
+  }
+  get bottom() {
+    return this.pos.y + BALL_RADIUS;
+  }
+}
 
-const ball = document.getElementById('ball');
-ball.setAttribute('width', BALL_DIAMETER);
-ball.setAttribute('height', BALL_DIAMETER);
-ball.setAttribute('x', GAME_WIDTH / 2 - BALL_RADIUS);
-ball.setAttribute('y', GAME_HEIGHT / 2 - BALL_RADIUS);
+class Ball extends Rect {
+  constructor() {
+    super(BALL_DIAMETER, BALL_DIAMETER);
+    this.vel = new Vec;
+  }
+}
 
-const player2 = document.getElementById('player2');
-player2.setAttribute('width', BALL_DIAMETER);
-player2.setAttribute('height', PLAYER_HEIGHT);
-player2.setAttribute('x', GAME_WIDTH - BALL_DIAMETER * 3);
-player2.setAttribute('y', GAME_HEIGHT / 2 - PLAYER_HEIGHT / 2);
+class Player extends Rect {
+  constructor() {
+    super(PLAYER_WIDTH, PLAYER_HEIGHT);
+    this.score = 0;
+  }
+}
+
+class Pong {
+  constructor(canvas) {
+    this._canvas = canvas;
+    this._context = canvas.getContext('2d');
+
+    this.ball = new Ball;
+    
+    this.ball.pos.x = 20;
+    this.ball.pos.y = 20;
+    this.ball.vel.x = 100;
+    this.ball.vel.y = 100;
+
+    this.players = [
+      new Player,
+      new Player
+    ];
+
+    this.players[0].pos.x = 40;
+    this.players[1].pos.x = this._canvas.width - 40;
+    this.players.forEach(player => {
+      player.pos.y = this._canvas.height / 2 - PLAYER_HEIGHT / 2;
+    })
+
+    let lastTime;
+
+    const callback =(milliseconds) => {
+      if (lastTime) {
+        this.update((milliseconds - lastTime) / 1000);
+      }
+      lastTime = milliseconds;
+      requestAnimationFrame(callback);
+    }
+    callback();
+  }
+
+  draw() {
+    this._context.fillStyle = '#111';
+    this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    
+    this.drawRect(this.ball);
+
+    this.players.forEach(player => this.drawRect(player));
+  }
+
+  drawRect(rect) {
+    this._context.fillStyle = '#fff';
+    this._context.fillRect(rect.left, rect.top, rect.size.x, rect.size.y);
+  }
+
+  update(dt) {
+    // Change ball's position relative to the time difference
+    this.ball.pos.x += this.ball.vel.x * dt;
+    this.ball.pos.y += this.ball.vel.y * dt;
+    
+    // Reverse velocity if ball bounces on the top or bottom
+    if (this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
+      this.ball.vel.y = -this.ball.vel.y;
+    }
+    
+    // Reverse velocity if ball bounces on the left or right
+    if (this.ball.left < 0 || this.ball.right > this._canvas.width) {
+      this.ball.vel.x = -this.ball.vel.x;
+    }
+
+    // Computer player always follows the ball
+    this.players[1].pos.y = this.ball.pos.y;
+
+    this.draw();
+  }
+}
+
+const canvas = document.getElementById('game');
+const pong = new Pong(canvas);
 
 const myScoreBox = document.getElementById('myScore');
 const computerScoreBox = document.getElementById('computerScore');
@@ -45,30 +136,16 @@ function setComputerScore(score) {
 	computerScoreBox.textContent = computerScore;
 }
 
-function movePlayer1() {
-	const player1Y = +player1.getAttribute('y');
-	if (player1Y <= PLAYER_HEIGHT) {
-		player1.setAttribute('y', player1Y + BALL_DIAMETER);
-	} else if (player1Y >= GAME_HEIGHT - PLAYER_HEIGHT) {
-		player1.setAttribute('y', player1Y - BALL_DIAMETER);
-	} else {
-		player1.setAttribute('y', yOffset > 0 ? player1Y + BALL_DIAMETER : player1Y - BALL_DIAMETER);
-	}
-}
-
 function keyPress(event) {
 	if (event.keyCode === 38) {
 		player2.setAttribute('y', +player2.getAttribute('y') - BALL_DIAMETER);
 	} else if (event.keyCode === 40) {
 		player2.setAttribute('y', +player2.getAttribute('y') + BALL_DIAMETER);
-	} else if (event.keyCode === 32) {
-		ballMove();
-		setInterval(movePlayer1, 200);
 	}
 }
 
 function moveMouse(event) {
-	if (event.clientY < GAME_HEIGHT - PLAYER_HEIGHT) {
+	if (event.clientY < canvas.height - PLAYER_HEIGHT) {
 		player2.setAttribute('y', event.clientY);
 	}
 }
@@ -113,20 +190,7 @@ function ballMove() {
 		setTimeout(resetBall, 100);
 	}
 
-	if (
-		currentY <= 0 ||
-		currentY >= GAME_HEIGHT - BALL_DIAMETER ||
-		(player1X - BALL_DIAMETER < currentX + BALL_DIAMETER &&
-			currentX < player1X + BALL_DIAMETER &&
-			((currentY + BALL_DIAMETER >= player1Y && currentY < player1Y + BALL_DIAMETER) ||
-				(currentY <= player1Y + PLAYER_HEIGHT && currentY > player1Y))) ||
-		(player2X - BALL_DIAMETER < currentX + BALL_DIAMETER &&
-			currentX < player2X + BALL_DIAMETER &&
-			((currentY + BALL_DIAMETER >= player2Y && currentY < player2Y + BALL_DIAMETER) ||
-				(currentY <= player2Y + PLAYER_HEIGHT && currentY > player2Y)))
-	) {
-		yOffset = -1 * yOffset;
-	}
+
 
 	ball.setAttribute('y', currentY + yOffset);
 	if (direction === 'left') {
