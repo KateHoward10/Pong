@@ -78,6 +78,12 @@ class Pong {
     callback();
   }
 
+  collide(player, ball) {
+    if (player.left < ball.right && player.right > ball.left && player.top < ball.bottom && player.bottom > ball.top) {
+      ball.vel.x = -ball.vel.x;
+    }
+  }
+
   draw() {
     this._context.fillStyle = '#111';
     this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
@@ -109,6 +115,7 @@ class Pong {
 
     // Computer player always follows the ball
     this.players[1].pos.y = this.ball.pos.y;
+    this.players.forEach(player => this.collide(player, this.ball));
 
     this.draw();
   }
@@ -138,68 +145,20 @@ function setComputerScore(score) {
 
 function keyPress(event) {
 	if (event.keyCode === 38) {
-		player2.setAttribute('y', +player2.getAttribute('y') - BALL_DIAMETER);
+    pong.players[0].pos.y = pong.players[0].pos.y - BALL_DIAMETER;
 	} else if (event.keyCode === 40) {
-		player2.setAttribute('y', +player2.getAttribute('y') + BALL_DIAMETER);
+		pong.players[0].pos.y = pong.players[0].pos.y + BALL_DIAMETER;
 	}
 }
 
 function moveMouse(event) {
-	if (event.clientY < canvas.height - PLAYER_HEIGHT) {
-		player2.setAttribute('y', event.clientY);
+	if (event.offsetY < canvas.height - (PLAYER_HEIGHT / 2)) {
+		pong.players[0].pos.y = event.offsetY;
 	}
 }
 
 let direction = Math.random() > 0.5 ? 'right' : 'left';
 let yOffset = Math.random() * 10 - 5;
 
-function resetBall() {
-	ball.setAttribute('x', GAME_WIDTH / 2 - BALL_RADIUS);
-	ball.setAttribute('y', GAME_HEIGHT / 2 - BALL_RADIUS);
-}
-
-function ballMove() {
-	const currentX = +ball.getAttribute('x');
-	const currentY = +ball.getAttribute('y');
-	const player1X = +player1.getAttribute('x');
-	const player1Y = +player1.getAttribute('y');
-	const player2X = +player2.getAttribute('x');
-	const player2Y = +player2.getAttribute('y');
-	if (
-		currentX + BALL_DIAMETER === player2X &&
-		player2Y <= currentY + BALL_DIAMETER &&
-		currentY <= player2Y + PLAYER_HEIGHT
-	) {
-		direction = 'left';
-		setMyScore(myScore + 1);
-	}
-	if (currentX + BALL_DIAMETER === GAME_WIDTH) {
-		setComputerScore(computerScore + 1);
-		setTimeout(resetBall, 100);
-	}
-	if (
-		currentX === player1X + BALL_DIAMETER &&
-		player1Y <= currentY + BALL_DIAMETER &&
-		currentY <= player1Y + PLAYER_HEIGHT
-	) {
-		setComputerScore(computerScore + 1);
-		direction = 'right';
-	}
-	if (currentX === 0) {
-		setMyScore(myScore + 1);
-		setTimeout(resetBall, 100);
-	}
-
-
-
-	ball.setAttribute('y', currentY + yOffset);
-	if (direction === 'left') {
-		ball.setAttribute('x', currentX - 2);
-	} else {
-		ball.setAttribute('x', currentX + 2);
-	}
-	requestAnimationFrame(ballMove);
-}
-
 document.addEventListener('keydown', keyPress);
-document.addEventListener('mousemove', moveMouse);
+canvas.addEventListener('mousemove', moveMouse);
