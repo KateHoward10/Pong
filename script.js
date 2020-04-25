@@ -58,7 +58,6 @@ class Pong {
     this._context = canvas.getContext('2d');
 
     this.ball = new Ball;
-    this.reset();
 
     this.players = [new Player, new Player];
 
@@ -70,7 +69,7 @@ class Pong {
 
     let lastTime;
 
-    const callback =(milliseconds) => {
+    const callback = (milliseconds) => {
       if (lastTime) {
         this.update((milliseconds - lastTime) / 1000);
       }
@@ -78,6 +77,40 @@ class Pong {
       requestAnimationFrame(callback);
     }
     callback();
+
+    // Set up images for each digit for the scores
+    this.CHAR_PIXEL = 10;
+    this.CHARS = [
+        '111101101101111',
+        '010010010010010',
+        '111001111100111',
+        '111001111001111',
+        '101101111001001',
+        '111100111001111',
+        '111100111101111',
+        '111001001001001',
+        '111101111101111',
+        '111101111001111',
+    ].map(str => {
+      const numCanvas = document.createElement('canvas');
+      numCanvas.height = this.CHAR_PIXEL * 5;
+      numCanvas.width = this.CHAR_PIXEL * 3;
+      const context = numCanvas.getContext('2d');
+      context.fillStyle = '#fff';
+      str.split('').forEach((fill, i) => {
+        if (fill === '1') {
+          context.fillRect(
+            (i % 3) * this.CHAR_PIXEL,
+            (i / 3 | 0) * this.CHAR_PIXEL,
+            this.CHAR_PIXEL,
+            this.CHAR_PIXEL
+          )
+        }
+      });
+      return numCanvas;
+    })
+
+    this.reset();
   }
 
   collide(player, ball) {
@@ -100,11 +133,25 @@ class Pong {
     this.drawRect(this.ball);
 
     this.players.forEach(player => this.drawRect(player));
+
+    this.drawScore();
   }
 
   drawRect(rect) {
     this._context.fillStyle = '#fff';
     this._context.fillRect(rect.left, rect.top, rect.size.x, rect.size.y);
+  }
+
+  drawScore() {
+    const align = this._canvas.width / 3;
+    const CHAR_WIDTH = this.CHAR_PIXEL * 4;
+    this.players.forEach((player, index) => {
+      const chars = player.score.toString().split('');
+      const offset = align * (index + 1) - (CHAR_WIDTH * chars.length / 2) + this.CHAR_PIXEL / 2;
+      chars.forEach((char, pos) => {
+        this._context.drawImage(this.CHARS[char | 0], offset + pos * CHAR_WIDTH, 20);
+      })
+    })
   }
 
   reset() {
