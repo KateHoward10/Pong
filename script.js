@@ -211,9 +211,8 @@ function keyPress(event) {
 }
 
 function moveMouse(event) {
-	if (event.offsetY > PLAYER_HEIGHT / 2 && event.offsetY < canvas.height - (PLAYER_HEIGHT / 2)) {
-		pong.players[0].pos.y = event.offsetY;
-	}
+  const scale = event.clientY / event.target.getBoundingClientRect().height;
+	pong.players[0].pos.y = (canvas.height * scale) - (PLAYER_HEIGHT / 2);
 }
 
 document.addEventListener('keydown', keyPress);
